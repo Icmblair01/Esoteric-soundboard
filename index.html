@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Esoteric Soundboard</title>
+<meta name="theme-color" content="#0b0b12" />
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{ --bg:#0a0a0a; --ink:#e6dfc8; --accent:#a56cff; --accent2:#27e1ff;
+    --glow: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 18px rgba(165,108,255,.35)); }
+  html,body{height:100%}
+  body{margin:0; background: radial-gradient(1200px 1200px at 50% 50%, #1a1024 0%, #0b0b12 35%, #000 70%);
+       color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; overflow:hidden}
+  .wrap{ position:relative; height:100%; display:grid; place-items:center; }
+  .hud{ position:fixed; inset:16px; display:flex; align-items:flex-end; justify-content:space-between; pointer-events:none;}
+  .hud .card{ pointer-events:auto; background:rgba(10,10,16,.45); backdrop-filter: blur(6px); border:1px solid rgba(255,255,255,.12); border-radius:16px;
+              padding:10px 14px; box-shadow:0 10px 30px rgba(0,0,0,.35);}  
+  .title{ letter-spacing:.12em; text-transform:uppercase; font-size:12px; opacity:.8 }
+  .ctrls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  button, input[type="range"], select, .file{ -webkit-tap-highlight-color: transparent; }
+  button{ background:linear-gradient(180deg, rgba(48,48,68,.9), rgba(24,24,34,.9)); border:1px solid rgba(255,255,255,.14); color:var(--ink);
+          padding:8px 12px; border-radius:12px; cursor:pointer; font-weight:600; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+          box-shadow:0 6px 14px rgba(0,0,0,.35); }
+  button:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.4); }
+  button.active{ outline:2px solid var(--accent2); box-shadow:0 0 0 6px rgba(39,225,255,.12) inset; }
+  input[type="range"]{ accent-color: var(--accent); }
+  .board{ position:relative; width:min(92vmin, 980px); aspect-ratio:1; display:grid; place-items:center;}
+  .sigil-bg{ position:absolute; inset:0; filter: var(--glow); opacity:.9 }
+  .sigil-bg svg{ width:100%; height:100%; display:block; }
+  .pads{ position:absolute; inset:0; display:grid; place-items:center; }
+  .pads button.pad{ position:absolute; width:120px; height:120px; border-radius:50%; display:grid; place-items:center; padding:0;
+                    background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.12), rgba(0,0,0,.35)),
+                               conic-gradient(from 0deg, rgba(167,118,255,.08), rgba(39,225,255,.08), rgba(255,118,233,.08), rgba(167,118,255,.08));
+                    border:1px solid rgba(255,255,255,.18); box-shadow: inset 0 0 0 2px rgba(255,255,255,.06), 0 12px 30px rgba(0,0,0,.5); }
+  .pads button.pad img, .pads button.pad svg{ width:70%; height:70%; object-fit:contain;
+                    filter: invert(88%) sepia(12%) saturate(140%) hue-rotate(10deg) drop-shadow(0 0 6px rgba(165,108,255,.45)); opacity:.9 }
+  .center{ position:absolute; width:38%; aspect-ratio:1; border-radius:50%; display:grid; place-items:center;
+           background: radial-gradient(closest-side, rgba(255,255,255,.06), rgba(0,0,0,.4)); border:1px solid rgba(255,255,255,.16);
+           box-shadow: inset 0 0 0 2px rgba(255,255,255,.06), 0 18px 40px rgba(0,0,0,.55); }
+  .center .inner{ width:84%; aspect-ratio:1; border-radius:50%; display:grid; place-items:center; border:1px dashed rgba(255,255,255,.18)}
+  .center img, .center svg{ width:72%; height:72%; object-fit:contain; filter: var(--glow); opacity:.95 }
+  @keyframes spin { from{ transform: rotate(0deg); } to{ transform: rotate(360deg);} }
+  .spin-slow{ animation: spin 60s linear infinite; } .spin-fast{ animation: spin 18s linear infinite; }
+  .file{ display:inline-block; position:relative; overflow:hidden; } .file input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .small{ font-size:12px; opacity:.8 }
+  @media (max-width: 780px){ .pads button.pad{ width:90px; height:90px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="board" id="board">
+    <div class="sigil-bg spin-slow" aria-hidden="true">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <g id="star8"><polygon points="50,5 56,28 95,28 63,45 75,90 50,62 25,90 37,45 5,28 44,28" fill="none" stroke="url(#g)" stroke-width=".6" /></g>
+          <radialGradient id="g" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#fff" stop-opacity=".8"/><stop offset="100%" stop-color="#9d7fff" stop-opacity=".25"/>
+          </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48" fill="none" stroke="url(#g)" stroke-width=".6"/>
+        <g class="spin-fast" transform-origin="50 50"><use href="#star8"/><use href="#star8" transform="rotate(22 50 50)"/><use href="#star8" transform="rotate(45 50 50)"/></g>
+        <g opacity=".65"><rect x="25" y="25" width="50" height="50" fill="none" stroke="url(#g)" stroke-width=".5"/><rect x="30" y="30" width="40" height="40" fill="none" stroke="url(#g)" stroke-width=".4"/><rect x="35" y="35" width="30" height="30" fill="none" stroke="url(#g)" stroke-width=".35"/></g>
+      </svg>
+    </div>
+    <div class="pads" id="pads"></div>
+    <div class="center"><div class="inner">
+      <svg viewBox="0 0 100 100" aria-label="pentacle">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#d0c7ff" stroke-width="3" opacity=".8"/>
+        <polygon points="50,18 62,62 20,38 80,38 38,62" fill="none" stroke="#bca9ff" stroke-width="4"/>
+        <circle cx="50" cy="50" r="8" fill="none" stroke="#fff" stroke-width="2"/>
+      </svg>
+    </div></div>
+  </div>
+  <div class="hud">
+    <div class="card">
+      <div class="title">Esoteric Soundboard</div>
+      <div class="ctrls" style="margin-top:6px">
+        <button id="start">Start audio</button>
+        <button id="stop">Stop all</button>
+        <button id="random">Shuffle combo</button>
+        <label class="small">Vol <input id="vol" type="range" min="0" max="1" step="0.01" value="0.7"></label>
+        <label class="small">Reverb <input id="rev" type="range" min="0" max="1" step="0.01" value="0.35"></label>
+        <span class="file small"><button>Load your sigils</button><input type="file" id="imgLoader" accept="image/*" multiple></span>
+        <button id="installHelp">Install</button>
+      </div>
+      <div class="small" style="margin-top:4px; opacity:.7">Toggle multiple pads; they’re tuned to sit well together. Headphones recommended for subtle binaural offsets.</div>
+    </div>
+    <div class="card" style="text-align:right">
+      <div class="title">Modes</div>
+      <div class="ctrls" style="margin-top:6px; justify-content:flex-end">
+        <select id="scale">
+          <option value="ambient" selected>Ambient blend</option>
+          <option value="pentatonic">A pentatonic drones</option>
+          <option value="solfeggio">Solfeggio set</option>
+          <option value="theta">Theta beats (4–7 Hz)</option>
+          <option value="alpha">Alpha beats (8–12 Hz)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- WebAudio (same as previous bundle, abbreviated where possible) ---
+let AC, master, masterGain, reverb, reverbGain;
+const padsEl = document.getElementById('pads'); const padCount=8; const ringRadius=42;
+function makeImpulse(ctx,s=2.2){const r=ctx.sampleRate,l=r*s,b=ctx.createBuffer(2,l,r);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<l;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/l,2.4);}return b;}
+function init(){if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.7;masterGain=master;reverb=AC.createConvolver();reverb.buffer=makeImpulse(AC,2.6);reverbGain=AC.createGain();reverbGain.gain.value=.35;master.connect(AC.destination);reverb.connect(reverbGain).connect(master);}
+function createPad({base=110,beatHz=7,type='sine',filter=900}){if(!AC)init();const L=AC.createOscillator(),R=AC.createOscillator();L.type=type;R.type=type;L.frequency.value=base-beatHz/2;R.frequency.value=base+beatHz/2;const lg=AC.createGain(),rg=AC.createGain();lg.gain.value=rg.gain.value=0;const lp=AC.createStereoPanner(),rp=AC.createStereoPanner();lp.pan.value=-.6;rp.pan.value=.6;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=filter;f.Q.value=.2;const s=AC.createOscillator();s.type='triangle';s.frequency.value=base*2;const sg=AC.createGain();sg.gain.value=0;L.connect(lg).connect(lp).connect(f);R.connect(rg).connect(rp).connect(f);s.connect(sg).connect(f);f.connect(reverb);f.connect(master);[L,R,s].forEach(o=>o.start());function setOn(on){const t=on?.24:0;lg.gain.cancelScheduledValues(AC.currentTime);rg.gain.cancelScheduledValues(AC.currentTime);sg.gain.cancelScheduledValues(AC.currentTime);lg.gain.linearRampToValueAtTime(on?.24:0,AC.currentTime+(on?.35:.25));rg.gain.linearRampToValueAtTime(on?.24:0,AC.currentTime+(on?.35:.25));sg.gain.linearRampToValueAtTime(on?.12:0,AC.currentTime+(on?.5:.3));}function update({base:n=base,beatHz:b=beatHz}){base=n;beatHz=b;L.frequency.setTargetAtTime(base-beatHz/2,AC.currentTime,.2);R.frequency.setTargetAtTime(base+beatHz/2,AC.currentTime,.2);s.frequency.setTargetAtTime(base*2,AC.currentTime,.3);}function stop(){[L,R,s].forEach(o=>{try{o.stop()}catch(e){}})}return{setOn,update,stop};}
+function makeNoisePad(tone='brown'){if(!AC)init();const bs=2*AC.sampleRate,nb=AC.createBuffer(1,bs,AC.sampleRate),out=nb.getChannelData(0);let last=0;for(let i=0;i<bs;i++){const w=Math.random()*2-1;last=(last+.02*w)/1.02;out[i]=tone==='pink'?last:last*1.8}const src=AC.createBufferSource();src.buffer=nb;src.loop=true;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=600;const g=AC.createGain();g.gain.value=0;src.connect(f).connect(g);g.connect(reverb);g.connect(master);src.start();return{setOn(on){g.gain.cancelScheduledValues(AC.currentTime);g.gain.linearRampToValueAtTime(on?.18:0,AC.currentTime+(on?.4:.25));f.frequency.setTargetAtTime(on?900:400,AC.currentTime,.6)},update(){},stop(){try{src.stop()}catch(e){}}};}
+const recipes={ambient:[{base:110,beat:7,type:'sine'},{base:196,beat:9,type:'sine'},{base:261.63,beat:8,type:'triangle'},{base:329.63,beat:6,type:'triangle'},{base:87,beat:6,type:'sine'},{noise:'brown'},{base:432,beat:7,type:'sine'},{base:55,beat:5,type:'sine'}],
+pentatonic:[110,146.83,164.81,196,246.94,293.66,329.63,392].map((f,i)=>({base:f,beat:(i%2?7:9),type:i%3?'triangle':'sine'})),
+solfeggio:[174,285,396,417,528,639,741,852].map((f,i)=>({base:f,beat:(i%2?7:5)})),
+theta:[110,174,196,210,256,288,320,360].map(f=>({base:f,beat:5.5})),alpha:[110,174,196,210,256,288,320,360].map(f=>({base:f,beat:10}))};
+let pads=[]; function buildPads(mode='ambient'){if(!AC)init();padsEl.innerHTML='';pads.forEach(p=>p.stop&&p.stop());pads=[];const set=recipes[mode];for(let i=0;i<8;i++){const a=i/8*Math.PI*2-Math.PI/2,x=50+Math.cos(a)*42,y=50+Math.sin(a)*42;const btn=document.createElement('button');btn.className='pad';btn.style.left=`${x}%`;btn.style.top=`${y}%`;btn.style.transform='translate(-50%, -50%)';btn.setAttribute('data-on','0');btn.innerHTML=`<svg viewBox='0 0 100 100'><g fill='none' stroke='#e3defb' stroke-width='4' opacity='.9'><circle cx='50' cy='50' r='36'/><polygon points='50,18 62,62 20,40 80,40 38,62'/></g></svg>`;padsEl.appendChild(btn);const cfg=set[i];let voice; if(cfg&&cfg.noise) voice=makeNoisePad(cfg.noise); else { const base=cfg?.base??110*(i+1)/2, beat=cfg?.beat??7, type=cfg?.type??'sine'; voice=createPad({base,beatHz:beat,type}); } pads.push({btn,voice}); btn.addEventListener('click',()=>{if(!AC)init();const on=btn.getAttribute('data-on')==='1';btn.setAttribute('data-on',on?'0':'1');btn.classList.toggle('active');voice.setOn(!on);}); } }
+const vol=document.getElementById('vol'), rev=document.getElementById('rev'); vol.addEventListener('input',()=>{if(masterGain) masterGain.gain.value=parseFloat(vol.value)}); rev.addEventListener('input',()=>{if(reverbGain) reverbGain.gain.value=parseFloat(rev.value)});
+document.getElementById('start').addEventListener('click',()=>{init();AC.resume();}); document.getElementById('stop').addEventListener('click',()=>{pads.forEach(p=>{p.btn.classList.remove('active');p.btn.setAttribute('data-on','0');p.voice.setOn(false);});}); document.getElementById('random').addEventListener('click',()=>{if(!AC)init();AC.resume();pads.forEach(p=>{const on=Math.random()>.45;p.btn.classList.toggle('active',on);p.btn.setAttribute('data-on',on?'1':'0');p.voice.setOn(on);});}); const scaleSel=document.getElementById('scale'); scaleSel.addEventListener('change',()=>buildPads(scaleSel.value));
+const imgLoader=document.getElementById('imgLoader'); imgLoader.addEventListener('change',e=>{const files=[...e.target.files]; if(!files.length) return; const center=document.querySelector('.center .inner'); const makeImg=f=>new Promise(res=>{const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f);}); (async()=>{const urls=await Promise.all(files.slice(0,9).map(makeImg)); if(urls[0]) center.innerHTML=`<img src='${urls[0]}' alt='sigil'/>`; for(let i=0;i<pads.length;i++){ if(urls[i+1]) pads[i].btn.innerHTML=`<img src='${urls[i+1]}' alt='sigil pad ${i+1}'/>`; } })();});
+if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('SW reg failed',e)); }); }
+let deferredPrompt; window.addEventListener('beforeinstallprompt',e=>{e.preventDefault(); deferredPrompt=e;}); document.getElementById('installHelp').addEventListener('click',async()=>{const iOS=/iphone|ipad|ipod/i.test(navigator.userAgent); if(deferredPrompt){deferredPrompt.prompt(); deferredPrompt=null; return;} if(iOS) alert('On iOS: Open in Safari → Share → Add to Home Screen.'); else alert('Use your browser’s “Install app / Add to Home screen”.');});
+function smokeTests(){try{init(); const o=AC.createOscillator(); o.start(); o.stop(); console.log('[TEST] Audio OK')}catch(e){console.error('[TEST] fail',e)}}; buildPads('ambient'); smokeTests();
+</script>
+</body>
+</html>
